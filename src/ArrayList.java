@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 //해당 클래스는 제네릭 타입 E를 사용하여 모든 데이터 유형을 수용할 수 있습니다.
 // E는 클래스나 인터페이스가 아니라 타입 매개변수(parameter)입니다.
-public class ArrayList<E> implements List<E> {
+public class ArrayList<E> implements List<E>, Cloneable {
 
     private static final int DEFAULT_CAPACITY = 10;    // ArrayList의 기본 용량을 나타내는 상수입니다. 이 값은 10으로 설정
     private static final Object[] EMPTY_ARRAY = {};    // 빈 배열을 나타내는 상수입니다. 초기화에 사용
@@ -172,6 +172,7 @@ public class ArrayList<E> implements List<E> {
             return false;
         }
     }
+
     @SuppressWarnings("unchecked")
     @Override
     public E remove(int index) { // 주어진 인덱스에 해당하는 요소를 제거
@@ -180,7 +181,7 @@ public class ArrayList<E> implements List<E> {
             throw new IndexOutOfBoundsException();
         }
 
-        E element = (E) array[index];	// 제거할 요소를 저장하기 위해 array[index] 값을 element 변수에 할당
+        E element = (E) array[index];    // 제거할 요소를 저장하기 위해 array[index] 값을 element 변수에 할당
         array[index] = null; // 해당 위치의 요소를 null로 설정하여 제거
 
         // 제거한 위치 이후의 모든 요소를 하나씩 왼쪽으로 이동
@@ -201,6 +202,7 @@ public class ArrayList<E> implements List<E> {
         따라서 제거된 요소를 반환하는 것은 사용자의 편의성을 높이기 위한 것입니다.
          */
     }
+
     @Override
     public boolean remove(Object value) { // 주어진 객체를 리스트에서 제거
 
@@ -215,9 +217,76 @@ public class ArrayList<E> implements List<E> {
         // 찾은 인덱스를 사용하여 remove 메소드를 호출하여 해당 인덱스에 위치한 요소를 리스트에서 제거
         remove(index);
         return true; // 성공적으로 실행되었으면 true를 반환
-    }
     /*
     이 코드는 객체의 동등성(equality)을 비교하기 위해 equals 메소드가 재정의되어 있어야 합니다.
     객체의 equals 메소드가 재정의되어 있지 않으면, 해당 객체와 동일한 객체를 찾을 수 없을 수 있습니다.
      */
+    }
+
+    @Override
+    public int size() {
+        return size;    // 리스트에 저장된 요소의 개수를 반환
+    /*
+    리스트에 저장된 요소의 개수를 알아야, 리스트에 저장된 요소를 탐색하거나,
+    리스트에 요소를 추가, 삭제하는 등의 연산을 수행할 수 있습니다.
+     */
+    }
+
+    @Override
+    public boolean isEmpty() { // 리스트가 비어있는지 여부를 반환
+        return size == 0;    // 리스트의 크기가 0이면 비어있다는 뜻이므로 true를 반환하고, 그렇지 않으면 false를 반환합니다.
+        // 이를 통해 해당 객체가 비어있는지 아닌지를 판별,
+        /*
+        예를 들어, 리스트의 크기가 0이면 isEmpty() 메소드를 호출하면 true를 반환
+         */
+    }
+
+    @Override
+    public void clear() { // 해당 배열의 모든 요소가 삭제되고 배열의 크기가 0으로 초기화
+        for (int i = 0; i < size; i++) {
+            array[i] = null; // 각 반복마다 해당 인덱스의 요소를 null로 변경
+        }
+        size = 0; // 이는 배열 내의 모든 요소가 삭제되었으므로 배열의 크기도 0이 되어야 함을 의미
+        resize(); // 배열 내의 요소를 삭제하고 나면 배열의 크기가 불필요하게 큰 경우, 새로운 배열을 생성하여 크기를 줄이는 작업
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        // super.clone() 메소드를 호출하여 원래 객체의 얕은 복사본을 만듭니다.
+        ArrayList<?> cloneList = (ArrayList<?>) super.clone();
+        // ArrayList의 요소는 Object 배열(array)에 저장되므로, Object[] 배열을 새로 생성
+        Object[] newArray = new Object[size];
+        // System.arraycopy() 메소드를 사용하여 기존 배열의 요소를 새 배열로 복사합니다.
+        // 이 방법으로 제네릭 배열 생성 경고가 발생하지 않습니다.
+        System.arraycopy(array, 0, newArray, 0, size);
+        //새로운 배열을 cloneList.array에 할당하여 새 ArrayList 객체의 요소 배열로 설정
+        cloneList.array = newArray;
+        return cloneList; // 새로운 ArrayList 객체를 반환
+    }
+
+    public Object[] toArray() { // 매개변수를 가지지 않고 Object[] 타입의 배열을 반환
+        // Arrays.copyOf() 메소드를 사용하여 요소를 복사하며, 배열의 길이는 ArrayList 객체의 size 속성 값으로 설정
+        return Arrays.copyOf(array, size);
+    }
+
+
+    @SuppressWarnings("unchecked")
+    public <T> T[] toArray(T[] a) { // 제네릭 타입의 배열을 매개변수로 받습니다.
+        // 매개변수 배열 a의 길이가 ArrayList 객체의 size보다 작으면 Arrays.copyOf() 메소드를 사용
+        if (a.length < size) {
+            // Arrays.copyOf() 메소드를 사용하여 새로운 배열을 생성
+            // copyOf(원본 배열, 복사할 길이, Class<? extends T[]> 타입)
+            return (T[]) Arrays.copyOf(array, size, a.getClass());
+        }
+        // 이 메소드는 내부 배열(array)의 요소를 매개변수 배열 a에 복사하고, 매개변수 배열 a를 반환합니다.
+        // 이 때, 제네릭 타입의 배열이므로 캐스팅(casting)이 필요
+        // 원본배열, 원본배열 시작위치, 복사할 배열, 복사할배열 시작위치, 복사할 요소 수
+        System.arraycopy(array, 0, a, 0, size);
+        return a;
+        /*
+        이러한 toArray() 메소드를 사용하면, ArrayList 객체의 요소를 배열로 변환할 수 있습니다.
+        첫 번째 메소드는 반환할 배열의 타입을 명시하지 않아도 되므로, 반환할 배열의 타입이 확실하지 않은 경우에 유용합니다.
+        두 번째 메소드는 제네릭 타입의 배열을 매개변수로 받아서 요소를 복사하므로, 반환할 배열의 타입을 명시할 수 있습니다.
+         */
+    }
 }
