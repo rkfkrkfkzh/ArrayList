@@ -95,9 +95,78 @@ public class ArrayList<E> implements List<E> {
             size++; // size를 1 증가
         }
     }
+
     // 첫 번째 인수로 0을 전달하여 요소를 리스트의 첫 번째 위치에 추가합니다.
     // 두 번째 인수로는 새로운 요소의 값을 전달
     public void addFirst(E value) {
         add(0, value);
+    }
+
+    @SuppressWarnings("unchecked") // 컴파일러가 형 안정성(type safety) 검사를 수행하지 않도록 하는 역할
+    @Override
+    public E get(int index) {
+        if (index >= size || index < 0) {    //  index가 리스트의 범위를 벗어나면 예외처리
+            throw new IndexOutOfBoundsException();
+        }
+        // array 배열에서 해당 index에 위치한 요소를 반환합니다.
+        // 이때 array 배열은 ArrayList 클래스의 인스턴스 변수로 선언된 배열이며, Object 타입의 요소를 갖습니다.
+        // 따라서 반환된 요소는 Object 타입으로 반환되며, (E)를 사용하여 형변환을 수행하여 반환
+        return (E) array[index];
+    }
+    // index: 수정할 요소의 인덱스를 나타내는 정수 값, value: 지정된 인덱스의 현재 요소를 대체할 새로운 값
+    @Override
+    public void set(int index, E value) {
+        if (index >= size || index < 0) {    // 주어진 인덱스가 유효한지 확인, index가 리스트의 범위를 벗어나면 예외처리
+            throw new IndexOutOfBoundsException();
+        } else {
+            // array[index]에 주어진 값을 할당하여 지정된 인덱스의 요소를 새로운 값으로 설정
+            array[index] = value;
+        }
+    }
+    @Override
+    public int indexOf(Object value) { // value: 검색할 객체
+        int i = 0;
+
+        // value와 같은 객체(요소 값)일 경우 i(위치) 반환
+        for (i = 0; i < size; i++) { // 인덱스 i가 리스트의 크기보다 작은 동안 배열을 반복
+            if (array[i].equals(value)) { // array[i]와 value를 equals 메소드를 사용하여 비교
+                return i; // 현재 인덱스를 반환
+            }
+        }
+        // value와 같은 값을 찾을 수 없다면, -1을 반환 (리스트에 해당 객체가 없음)
+        return -1;
+    }
+    // 배열의 끝에서부터 역순으로 탐색하면서, 주어진 객체(value)가 마지막으로 나타나는 인덱스를 반환
+    public int lastIndexOf(Object value) {
+        // 배열의 끝부터(마지막 인덱스) 시작하여, 인덱스 i를 size - 1로 초기화합니다.
+        // size는 배열의 길이를 나타내는 변수
+        for(int i = size - 1; i >= 0; i--) {
+            if(array[i].equals(value)) { // 배열의 i번째 요소(array[i])가 주어진 객체(value)와 동일한지 확인
+                return i;
+            }
+        }
+        return -1;
+    }
+    @Override
+    public boolean contains(Object value) { // 배열에 주어진 객체(value)가 포함되어 있는지 여부를 반환
+
+        // 0 이상이면 요소가 존재한다는 뜻
+        if(indexOf(value) >= 0) { // indexOf(value) 메서드를 호출하여, 배열에서 주어진 객체(value)가 처음으로 나타나는 인덱스를 찾습니다.
+           /*
+           만약 주어진 객체(value)가 배열에 있다면,
+           indexOf(value)는 해당 객체가 처음으로 나타나는 인덱스를 반환할 것입니다.
+           이 경우, indexOf(value)의 반환값이 0보다 크거나 같은 경우
+           (즉, 주어진 객체(value)가 배열에 있다는 것을 나타내는 경우), true를 반환
+            */
+            return true;
+        }
+        else {
+            /*
+            만약 주어진 객체(value)가 배열에 없다면, indexOf(value)는 -1을 반환할 것입니다.
+            이 경우, indexOf(value)의 반환값이 0보다 작은 경우
+            (즉, 주어진 객체(value)가 배열에 없다는 것을 나타내는 경우), false를 반환
+             */
+            return false;
+        }
     }
 }
