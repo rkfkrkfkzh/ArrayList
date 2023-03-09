@@ -58,19 +58,46 @@ public class ArrayList<E> implements List<E> {
         이 코드 자체로는 실행되지 않으며 다른 메서드 내에서 호출되어 동적 배열의 크기를 조절합니다.
          */
     }
+
     @Override
-    public boolean add(E value) { // 내부적으로 addLast 메소드를 호출
-        addLast(value); // 리스트의 마지막 인덱스 다음에 새로운 값을 추가
-        return true; //
+    public boolean add(E value) { // 매개변수로 전달된 값을 리스트의 마지막 위치에 추가
+        addLast(value); // add 메소드는 내부적으로 addLast 메소드를 호출합니다.
+        return true; // 항상 true를 반환
     }
 
+    // addLast 메소드는 매개변수로 전달된 값을 리스트의 마지막 위치에 추가
     public void addLast(E value) {
-
-        // 꽉차있는 상태라면 용적 재할당
+        // 리스트의 현재 크기와 배열의 크기를 비교하여 배열이 꽉 차면
         if (size == array.length) {
-            resize();
+            resize(); // 내부적으로 배열의 크기를 늘리고, 기존의 원소들을 새로운 배열에 복사
         }
-        array[size] = value;	// 마지막 위치에 요소 추가
-        size++;	// 사이즈 1 증가
+        array[size] = value;    // 배열의 다음 위치에 매개변수로 전달된 값을 저장
+        size++;    // 리스트의 크기를 증가
+    }
+
+    @Override
+    public void add(int index, E value) {
+
+        if (index > size || index < 0) {    // 인덱스가 범위를 벗어나면 IndexOutOfBoundsException 예외
+            throw new IndexOutOfBoundsException();
+        }
+        if (index == size) {    // 인덱스가 리스트의 마지막 인덱스와 같으면 addLast 메소드를 호출
+            addLast(value); // addLast 메소드는 리스트의 맨 뒤에 값을 추가
+        } else {
+            if (size == array.length) {    // 배열의 크기를 확인하고 필요한 경우
+                resize(); // resize 메소드를 호출하여 배열의 크기를 늘립니다.
+            }
+            // 추가할 위치 이후의 요소들을 오른쪽으로 이동시키기 위해 반복문을 사용
+            for (int i = size; i > index; i--) {
+                array[i] = array[i - 1];
+            }
+            array[index] = value;    // 지정된 인덱스에 값을 할당
+            size++; // size를 1 증가
+        }
+    }
+    // 첫 번째 인수로 0을 전달하여 요소를 리스트의 첫 번째 위치에 추가합니다.
+    // 두 번째 인수로는 새로운 요소의 값을 전달
+    public void addFirst(E value) {
+        add(0, value);
     }
 }
