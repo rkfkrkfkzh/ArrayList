@@ -113,6 +113,7 @@ public class ArrayList<E> implements List<E> {
         // 따라서 반환된 요소는 Object 타입으로 반환되며, (E)를 사용하여 형변환을 수행하여 반환
         return (E) array[index];
     }
+
     // index: 수정할 요소의 인덱스를 나타내는 정수 값, value: 지정된 인덱스의 현재 요소를 대체할 새로운 값
     @Override
     public void set(int index, E value) {
@@ -123,6 +124,7 @@ public class ArrayList<E> implements List<E> {
             array[index] = value;
         }
     }
+
     @Override
     public int indexOf(Object value) { // value: 검색할 객체
         int i = 0;
@@ -136,22 +138,24 @@ public class ArrayList<E> implements List<E> {
         // value와 같은 값을 찾을 수 없다면, -1을 반환 (리스트에 해당 객체가 없음)
         return -1;
     }
+
     // 배열의 끝에서부터 역순으로 탐색하면서, 주어진 객체(value)가 마지막으로 나타나는 인덱스를 반환
     public int lastIndexOf(Object value) {
         // 배열의 끝부터(마지막 인덱스) 시작하여, 인덱스 i를 size - 1로 초기화합니다.
         // size는 배열의 길이를 나타내는 변수
-        for(int i = size - 1; i >= 0; i--) {
-            if(array[i].equals(value)) { // 배열의 i번째 요소(array[i])가 주어진 객체(value)와 동일한지 확인
+        for (int i = size - 1; i >= 0; i--) {
+            if (array[i].equals(value)) { // 배열의 i번째 요소(array[i])가 주어진 객체(value)와 동일한지 확인
                 return i;
             }
         }
         return -1;
     }
+
     @Override
     public boolean contains(Object value) { // 배열에 주어진 객체(value)가 포함되어 있는지 여부를 반환
 
         // 0 이상이면 요소가 존재한다는 뜻
-        if(indexOf(value) >= 0) { // indexOf(value) 메서드를 호출하여, 배열에서 주어진 객체(value)가 처음으로 나타나는 인덱스를 찾습니다.
+        if (indexOf(value) >= 0) { // indexOf(value) 메서드를 호출하여, 배열에서 주어진 객체(value)가 처음으로 나타나는 인덱스를 찾습니다.
            /*
            만약 주어진 객체(value)가 배열에 있다면,
            indexOf(value)는 해당 객체가 처음으로 나타나는 인덱스를 반환할 것입니다.
@@ -159,8 +163,7 @@ public class ArrayList<E> implements List<E> {
            (즉, 주어진 객체(value)가 배열에 있다는 것을 나타내는 경우), true를 반환
             */
             return true;
-        }
-        else {
+        } else {
             /*
             만약 주어진 객체(value)가 배열에 없다면, indexOf(value)는 -1을 반환할 것입니다.
             이 경우, indexOf(value)의 반환값이 0보다 작은 경우
@@ -169,4 +172,52 @@ public class ArrayList<E> implements List<E> {
             return false;
         }
     }
+    @SuppressWarnings("unchecked")
+    @Override
+    public E remove(int index) { // 주어진 인덱스에 해당하는 요소를 제거
+        // size보다 크거나 0보다 작은 인덱스가 주어지면 예외처리
+        if (index >= size || index < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        E element = (E) array[index];	// 제거할 요소를 저장하기 위해 array[index] 값을 element 변수에 할당
+        array[index] = null; // 해당 위치의 요소를 null로 설정하여 제거
+
+        // 제거한 위치 이후의 모든 요소를 하나씩 왼쪽으로 이동
+        for (int i = index; i < size - 1; i++) {
+            array[i] = array[i + 1]; // 배열의 i번째 요소를 i+1번째 요소로 덮어쓰기
+            array[i + 1] = null; // i+1번째 요소를 null로 설정
+        }
+        size--; // 제거 후 배열의 크기를 하나 감소
+        resize(); // 필요한 경우 배열의 크기를 조절하는 resize 메소드를 호출
+        return element; // 마지막으로 제거한 요소를 반환
+        /*
+        제거한 요소를 반환하는 이유는, remove 메소드가 호출되면 해당 인덱스에 위치한 요소를 제거하고,
+        제거된 요소를 반환함으로써 사용자에게 해당 요소를 반환할 수 있도록 하기 위함입니다.
+        예를 들어, List 인터페이스를 구현한 클래스에서 remove 메소드를 호출하여 리스트에서 요소를 제거할 때,
+        제거된 요소를 반환하여 그 값을 다른 변수에 저장하거나 다른 용도로 사용할 수 있습니다.
+        제거된 요소를 반환하지 않고, 단순히 제거만 한다면 제거된 요소의 값을 알 수 없으므로,
+        제거한 요소의 값을 사용하는 경우에는 문제가 발생할 수 있습니다.
+        따라서 제거된 요소를 반환하는 것은 사용자의 편의성을 높이기 위한 것입니다.
+         */
+    }
+    @Override
+    public boolean remove(Object value) { // 주어진 객체를 리스트에서 제거
+
+        // 주어진 객체가 리스트에 존재하는지 확인
+        int index = indexOf(value);
+
+        // 리스트에 해당 객체가 없다면 indexOf 메소드는 -1을 반환
+        if (index == -1) {
+            return false; // false를 반환
+        }
+
+        // 찾은 인덱스를 사용하여 remove 메소드를 호출하여 해당 인덱스에 위치한 요소를 리스트에서 제거
+        remove(index);
+        return true; // 성공적으로 실행되었으면 true를 반환
+    }
+    /*
+    이 코드는 객체의 동등성(equality)을 비교하기 위해 equals 메소드가 재정의되어 있어야 합니다.
+    객체의 equals 메소드가 재정의되어 있지 않으면, 해당 객체와 동일한 객체를 찾을 수 없을 수 있습니다.
+     */
 }
